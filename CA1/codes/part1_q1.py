@@ -18,9 +18,10 @@ class Address:
         self.network = network
 
     def __str__(self):
-        return f'Address: {self.bitcoin_address}\n' \
-               f'Private key: {self.private_key}\n' \
-               f'Public key: {self.public_key}'
+        return f'Address:           {self.bitcoin_address}\n' \
+               f'Private key (WIF): {self.private_key_wif}\n' \
+               f'Private key:       {self.private_key}\n' \
+               f'Public key:        {self.public_key}'
 
     @property
     def network(self) -> Network:
@@ -29,6 +30,10 @@ class Address:
     @network.setter
     def network(self, network: Network):
         self._network = network
+
+    @property
+    def private_key_wif(self) -> str:
+        return self._to_wif(self._private_key)
 
     @property
     def private_key(self) -> str:
@@ -46,8 +51,15 @@ class Address:
         self._generate_key_pair()
         self._generate_bitcoin_address()
 
-    def _get_network_byte(self) -> bytes:
-        if self.network == Address.Network.MAINNET:
+    def _get_network_byte(self, is_private: bool = True) -> bytes:
+        if is_private:
+            if self.network == Address.Network.MAINNET:
+                return b'\x80'
+            elif self.network == Address.Network.TESTNET:
+                return b'\xef'
+            else:
+                raise ValueError('Invalid network')
+        elif self.network == Address.Network.MAINNET:
             return b'\x00'
         elif self.network == Address.Network.TESTNET:
             return b'\x6f'
@@ -72,13 +84,17 @@ class Address:
         if ripemd160 is None:
             raise ValueError('Invalid ripemd160')
 
-        network_ripemd160 = self._get_network_byte() + ripemd160.digest()
-        sha256_1 = hashlib.sha256(network_ripemd160).digest()
+        self._bitcoin_address = self._to_wif(ripemd160.digest(), is_private=False)
+
+    def _to_wif(self, key: bytes, is_private: bool = True) -> str:
+        network_byte = self._get_network_byte(is_private)
+        key_with_network_byte = network_byte + key
+        sha256_1 = hashlib.sha256(key_with_network_byte).digest()
         sha256_2 = hashlib.sha256(sha256_1).digest()
         checksum = sha256_2[:4]
-
-        binary_bitcoin_address = network_ripemd160 + checksum
-        self._bitcoin_address = base58.b58encode(binary_bitcoin_address).decode('utf-8')
+        binary_key = key_with_network_byte + checksum
+        wif = base58.b58encode(binary_key).decode('utf-8')
+        return wif
 
 
 def main():
