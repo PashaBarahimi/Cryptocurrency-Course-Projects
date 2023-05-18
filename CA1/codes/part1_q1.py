@@ -43,7 +43,13 @@ class Wallet:
         return self._bitcoin_address
 
     def generate(self) -> None:
-        self._generate_key_pair()
+        self._private_key = os.urandom(32)
+        self._generate_public_key()
+        self._generate_bitcoin_address()
+
+    def generate_from_wif(self, private_key_wif: str) -> None:
+        self._private_key = self._from_wif(private_key_wif)
+        self._generate_public_key()
         self._generate_bitcoin_address()
 
     def _get_network_byte(self, is_private: bool = True) -> bytes:
@@ -61,14 +67,12 @@ class Wallet:
         else:
             raise ValueError('Invalid network')
 
-    def _generate_key_pair(self) -> None:
-        private_key = os.urandom(32)
-        public_key = ecdsa.SigningKey.from_string(private_key, curve=ecdsa.SECP256k1).verifying_key
+    def _generate_public_key(self) -> None:
+        public_key = ecdsa.SigningKey.from_string(self._private_key, curve=ecdsa.SECP256k1).verifying_key
 
         if public_key is None:
             raise ValueError('Invalid public key')
 
-        self._private_key = private_key
         self._public_key = public_key.to_string()
 
     def _generate_bitcoin_address(self) -> None:
@@ -87,6 +91,19 @@ class Wallet:
         binary_key = key_with_network_byte + checksum
         wif = base58.b58encode(binary_key).decode('utf-8')
         return wif
+
+    def _from_wif(self, wif: str) -> bytes:
+        binary_key = base58.b58decode(wif)
+        key = binary_key[:-4]
+        checksum = binary_key[-4:]
+        sha256_1 = hashlib.sha256(key).digest()
+        sha256_2 = hashlib.sha256(sha256_1).digest()
+        if checksum != sha256_2[:4]:
+            raise ValueError('Invalid WIF')
+        network_byte = key[0:1]
+        if network_byte != self._get_network_byte():
+            raise ValueError('Invalid WIF')
+        return key[1:]
 
 
 def main():
