@@ -1,11 +1,8 @@
 from part1_q1 import Address
 
-PREFIX = '385'
+PREFIX = 'pas'
 
 class VanityAddress(Address):
-    _prefix: str
-    _number_of_tries: int
-
     def __init__(self, prefix: str, network: Address.Network = Address.Network.TESTNET):
         super().__init__(network)
         self._prefix = prefix

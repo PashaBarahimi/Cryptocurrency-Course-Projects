@@ -9,11 +9,6 @@ class Address:
         MAINNET = 0
         TESTNET = 1
 
-    _private_key: bytes
-    _public_key: bytes
-    _bitcoin_address: str
-    _network: Network
-
     def __init__(self, network: Network = Network.TESTNET):
         self.network = network
 
