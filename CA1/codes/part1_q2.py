@@ -1,6 +1,7 @@
 from part1_q1 import Wallet
 
-PREFIX = 'pas'
+PREFIX = "pas"
+
 
 class VanityWallet(Wallet):
     def __init__(self, prefix: str, network: Wallet.Network = Wallet.Network.TESTNET):
@@ -9,9 +10,11 @@ class VanityWallet(Wallet):
         self._number_of_tries = 0
 
     def __str__(self):
-        return f'{super().__str__()}\n' \
-               f'Prefix:            {self.prefix}\n' \
-               f'Number of tries:   {self.number_of_tries}'
+        return (
+            f"{super().__str__()}\n"
+            f"Prefix:            {self.prefix}\n"
+            f"Number of tries:   {self.number_of_tries}"
+        )
 
     @property
     def prefix(self) -> str:
@@ -40,5 +43,5 @@ def main():
     print(wallet)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
