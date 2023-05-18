@@ -1,9 +1,9 @@
-from part1_q1 import Address
+from part1_q1 import Wallet
 
 PREFIX = 'pas'
 
-class VanityAddress(Address):
-    def __init__(self, prefix: str, network: Address.Network = Address.Network.TESTNET):
+class VanityWallet(Wallet):
+    def __init__(self, prefix: str, network: Wallet.Network = Wallet.Network.TESTNET):
         super().__init__(network)
         self._prefix = prefix
         self._number_of_tries = 0
@@ -35,9 +35,9 @@ class VanityAddress(Address):
 
 def main():
     prefix = PREFIX
-    address = VanityAddress(prefix)
-    address.generate()
-    print(address)
+    wallet = VanityWallet(prefix, Wallet.Network.TESTNET)
+    wallet.generate()
+    print(wallet)
 
 
 if __name__ == '__main__':

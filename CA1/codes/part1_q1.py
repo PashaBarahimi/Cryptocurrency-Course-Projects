@@ -4,7 +4,7 @@ import enum
 import hashlib
 import os
 
-class Address:
+class Wallet:
     class Network(enum.Enum):
         MAINNET = 0
         TESTNET = 1
@@ -42,21 +42,21 @@ class Address:
     def bitcoin_address(self) -> str:
         return self._bitcoin_address
 
-    def generate(self):
+    def generate(self) -> None:
         self._generate_key_pair()
         self._generate_bitcoin_address()
 
     def _get_network_byte(self, is_private: bool = True) -> bytes:
         if is_private:
-            if self.network == Address.Network.MAINNET:
+            if self.network == Wallet.Network.MAINNET:
                 return b'\x80'
-            elif self.network == Address.Network.TESTNET:
+            elif self.network == Wallet.Network.TESTNET:
                 return b'\xef'
             else:
                 raise ValueError('Invalid network')
-        elif self.network == Address.Network.MAINNET:
+        elif self.network == Wallet.Network.MAINNET:
             return b'\x00'
-        elif self.network == Address.Network.TESTNET:
+        elif self.network == Wallet.Network.TESTNET:
             return b'\x6f'
         else:
             raise ValueError('Invalid network')
@@ -76,9 +76,6 @@ class Address:
         ripemd160 = hashlib.new('ripemd160')
         ripemd160.update(sha256)
 
-        if ripemd160 is None:
-            raise ValueError('Invalid ripemd160')
-
         self._bitcoin_address = self._to_wif(ripemd160.digest(), is_private=False)
 
     def _to_wif(self, key: bytes, is_private: bool = True) -> str:
@@ -93,9 +90,9 @@ class Address:
 
 
 def main():
-    address = Address(network=Address.Network.TESTNET)
-    address.generate()
-    print(address)
+    wallet = Wallet(network=Wallet.Network.TESTNET)
+    wallet.generate()
+    print(wallet)
 
 
 if __name__ == '__main__':
