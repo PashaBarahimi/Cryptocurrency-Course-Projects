@@ -13,6 +13,9 @@ class Wallet:
 
     def __init__(self, network: Network = Network.TESTNET):
         self.network = network
+        self._private_key = b""
+        self._public_key = b""
+        self._bitcoin_address = ""
 
     def __str__(self):
         return (
@@ -60,10 +63,9 @@ class Wallet:
         if is_private:
             if self.network == Wallet.Network.MAINNET:
                 return b"\x80"
-            elif self.network == Wallet.Network.TESTNET:
+            if self.network == Wallet.Network.TESTNET:
                 return b"\xef"
-            else:
-                raise ValueError("Invalid network")
+            raise ValueError("Invalid network")
         elif self.network == Wallet.Network.MAINNET:
             return b"\x00"
         elif self.network == Wallet.Network.TESTNET:
