@@ -1,6 +1,6 @@
 import enum
 import hashlib
-import os
+import secrets
 
 import base58
 import ecdsa
@@ -50,7 +50,7 @@ class Wallet:
         return self._bitcoin_address
 
     def generate(self) -> None:
-        self._private_key = os.urandom(32)
+        self._private_key = secrets.token_bytes(32)
         self._generate_public_key()
         self._generate_bitcoin_address()
 
@@ -81,7 +81,9 @@ class Wallet:
         if public_key is None:
             raise ValueError("Invalid public key")
 
-        self._public_key = public_key.to_string()
+        self._public_key = (
+            b"\x04" + public_key.to_string()
+        )  # 0x04 is the prefix for uncompressed public keys
 
     def _generate_bitcoin_address(self) -> None:
         sha256 = hashlib.sha256(self._public_key).digest()
