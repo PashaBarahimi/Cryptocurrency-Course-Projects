@@ -111,11 +111,11 @@ class Transaction:
     def address(self) -> str:
         return str(self._address)
 
-    def add_destination(self, destinations: Destination) -> None:
-        self._destinations.append(destinations)
+    def add_destination(self, destination: Destination) -> None:
+        self._destinations.append(destination)
 
-    def add_utxo(self, utxos: UnspentTransactionOutput) -> None:
-        self._utxos.append(utxos)
+    def add_utxo(self, utxo: UnspentTransactionOutput) -> None:
+        self._utxos.append(utxo)
 
     def create(self) -> requests.Response:
         if not self._destinations:
